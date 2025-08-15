@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amazon Scraper</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Amazon Scraper</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    input { padding: 0.5rem; width: 300px; }
+    button { padding: 0.5rem 1rem; margin-left: 0.5rem; }
+    pre { background: #f4f4f4; padding: 1rem; margin-top: 1rem; }
+  </style>
 </head>
 <body>
-    <h1>Amazon Scraper</h1>
-    <div class="search-container">
-        <input type="text" id="keyword" placeholder="Digite a palavra-chave">
-        <button id="scrapeBtn">Buscar</button>
-    </div>
-    <div id="results" class="results-container"></div>
-    <script src="script.js"></script>
+  <h1>Amazon Scraper</h1>
+  <form id="scrape-form">
+    <input type="text" id="url" placeholder="Digite a URL ou palavra-chave" required>
+    <button type="submit">Buscar</button>
+  </form>
+  <pre id="resultado"></pre>
+
+  <script type="module" src="./script.ts"></script>
 </body>
 </html>
