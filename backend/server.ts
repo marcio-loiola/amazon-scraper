@@ -1,62 +1,45 @@
 import express from "express";
-import axios from "axios";
-import { JSDOM } from "jsdom";
 import cors from "cors";
-import dotenv from "dotenv";
+import axios from "axios";
+import * as cheerio from "cheerio";
 
-dotenv.config();
 const app = express();
 app.use(cors());
 
-const PORT = process.env.PORT || 3000;
+app.get("/scrape", async (req, res) => {
+  try {
+    const url = "https://www.amazon.com.br/s?k=notebook";
+    const { data } = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+      },
+    });
 
-// Função para criar URL de busca da Amazon
-function buildAmazonURL(keyword) {
-    const encoded = encodeURIComponent(keyword);
-    return `https://www.amazon.com.br/s?k=${encoded}`;
-}
+    const $ = cheerio.load(data);
+    const produtos: { titulo: string; preco: string }[] = [];
 
-// Endpoint /api/scrape
-app.get("/api/scrape", async (req, res) => {
-    const { keyword } = req.query;
-    if (!keyword) return res.status(400).json({ error: "Parâmetro 'keyword' obrigatório" });
+    $(".s-main-slot .s-result-item").each(
+      (index: number, element: cheerio.Element) => {
+        const titulo = $(element).find("h2 a span").text().trim();
+        const preco = $(element)
+          .find(".a-price .a-offscreen")
+          .first()
+          .text()
+          .trim();
 
-    const url = buildAmazonURL(keyword);
+        if (titulo) {
+          produtos.push({ titulo, preco });
+        }
+      }
+    );
 
-    try {
-        const { data } = await axios.get(url, {
-            headers: { "User-Agent": "Mozilla/5.0" }
-        });
-
-        const dom = new JSDOM(data);
-        const document = dom.window.document;
-
-        // Seleciona os itens de produto na primeira página
-        const items = document.querySelectorAll("div.s-main-slot > div[data-component-type='s-search-result']");
-
-        const products = [];
-
-        items.forEach(item => {
-            const title = item.querySelector("h2 a span")?.textContent.trim();
-            const rating = item.querySelector(".a-icon-alt")?.textContent.trim();
-            const reviews = item.querySelector(".a-size-base")?.textContent.trim();
-            const image = item.querySelector("img.s-image")?.src;
-
-            if (title) {
-                products.push({
-                    title,
-                    rating: rating || "Sem avaliação",
-                    reviews: reviews || "0",
-                    image: image || ""
-                });
-            }
-        });
-
-        res.json(products);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Falha ao fazer scraping" });
-    }
+    res.json(produtos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Falha ao fazer scraping" });
+  }
 });
 
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

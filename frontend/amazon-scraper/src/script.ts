@@ -1,52 +1,35 @@
-// Obtém elementos do DOM com asserção de não-null
-const scrapeBtn = document.getElementById("scrapeBtn")! as HTMLButtonElement;
-const keywordInput = document.getElementById("keyword")! as HTMLInputElement;
-const resultsContainer = document.getElementById("results")! as HTMLDivElement;
+// Seleção segura dos elementos do DOM
+const form = document.querySelector<HTMLFormElement>("form");
+if (!form) throw new Error("Formulário não encontrado");
 
-// Função para criar cards de produtos
-function createProductCard(product: {
-    title: string;
-    rating: string;
-    reviews: string;
-    image: string;
-}) {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-        <img src="${product.image}" alt="${product.title}">
-        <h2>${product.title}</h2>
-        <p>Avaliação: ${product.rating}</p>
-        <p>Reviews: ${product.reviews}</p>
-    `;
-    resultsContainer.appendChild(card);
+const input = document.querySelector<HTMLInputElement>("#url");
+if (!input) throw new Error("Campo de URL não encontrado");
+
+const resultado = document.querySelector<HTMLElement>("#resultado");
+if (!resultado) throw new Error("Elemento de resultado não encontrado");
+
+function mostrarResultado(data: unknown) {
+  // como já checamos, TypeScript sabe que resultado não é null
+  resultado.textContent = JSON.stringify(data, null, 2);
 }
 
-// Função para buscar produtos
-async function fetchProducts(keyword: string) {
-    resultsContainer.innerHTML = "<p>Carregando...</p>";
+// Listener do formulário
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    try {
-        const res = await fetch(`/api/scrape?keyword=${encodeURIComponent(keyword)}`);
-        if (!res.ok) throw new Error("Erro na requisição");
-        const data: Array<{ title: string; rating: string; reviews: string; image: string }> = await res.json();
+  const url = input.value.trim();
+  if (!url) {
+    mostrarResultado({ error: "Digite uma URL válida" });
+    return;
+  }
 
-        if (data.length === 0) {
-            resultsContainer.innerHTML = "<p>Nenhum produto encontrado.</p>";
-            return;
-        }
-
-        resultsContainer.innerHTML = "";
-        data.forEach(createProductCard);
-
-    } catch (err) {
-        console.error(err);
-        resultsContainer.innerHTML = "<p>Erro ao buscar produtos.</p>";
-    }
-}
-
-// Event listener
-scrapeBtn.addEventListener("click", () => {
-    const keyword = keywordInput.value.trim();
-    if (!keyword) return alert("Digite uma palavra-chave!");
-    fetchProducts(keyword);
+  try {
+    const res = await fetch(`/scrape?url=${encodeURIComponent(url)}`);
+    if (!res.ok) throw new Error(`Erro na requisição: ${res.status}`);
+    const data = await res.json();
+    mostrarResultado(data);
+  } catch (err) {
+    console.error(err);
+    mostrarResultado({ error: "Falha ao buscar os dados" });
+  }
 });
