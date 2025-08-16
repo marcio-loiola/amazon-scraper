@@ -1,4 +1,17 @@
-// Seleção segura dos elementos do DOM
+/**
+ * Amazon Scraper Frontend
+ * 
+ * Interface de usuário para o scraper da Amazon
+ * Permite inserir palavras-chave e exibe resultados em cards
+ * 
+ * Funcionalidades:
+ * - Formulário de busca com validação
+ * - Exibição de produtos em grid responsivo
+ * - Sistema de estrelas para avaliações
+ * - Tratamento de erros e estados de loading
+ */
+
+// Seleção segura dos elementos do DOM com validação
 const form = document.querySelector<HTMLFormElement>("#scrape-form");
 if (!form) throw new Error("Formulário não encontrado");
 

@@ -1,3 +1,16 @@
+/**
+ * Amazon Scraper Backend
+ * 
+ * Este servidor Express extrai informações de produtos da Amazon
+ * usando axios para fazer requisições HTTP e Cheerio para parsing HTML.
+ * 
+ * Funcionalidades:
+ * - Endpoint /api/scrape para extrair produtos
+ * - Headers personalizados para evitar bloqueio
+ * - Múltiplos seletores CSS para robustez
+ * - Tratamento de erros abrangente
+ */
+
 import express from "express";
 import axios from "axios";
 import * as cheerio from "cheerio";
