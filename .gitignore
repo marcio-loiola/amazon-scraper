@@ -1,5 +1,11 @@
-# dependencies (bun install)
+# dependencies
 node_modules
+
+# package manager lock files (keep only the ones you use)
+# package-lock.json  # npm
+# yarn.lock         # yarn
+# pnpm-lock.yaml    # pnpm
+# bun.lock          # bun
 
 # output
 out

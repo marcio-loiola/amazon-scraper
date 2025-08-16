@@ -1,23 +1,271 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Amazon Scraper</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    input { padding: 0.5rem; width: 300px; }
-    button { padding: 0.5rem 1rem; margin-left: 0.5rem; }
-    pre { background: #f4f4f4; padding: 1rem; margin-top: 1rem; }
-  </style>
-</head>
-<body>
-  <h1>Amazon Scraper</h1>
-  <form id="scrape-form">
-    <input type="text" id="url" placeholder="Digite a URL ou palavra-chave" required>
-    <button type="submit">Buscar</button>
-  </form>
-  <pre id="resultado"></pre>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Amazon Scraper</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  <script type="module" src="./script.ts"></script>
-</body>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1e3c72 0%,
+          #2a5298 50%,
+          #1e3c72 100%
+        );
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .search-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(30, 60, 114, 0.15);
+        margin-bottom: 2rem;
+        text-align: center;
+        border: 2px solid #e8f0fe;
+      }
+
+      input {
+        padding: 1rem 1.5rem;
+        width: 400px;
+        border: 2px solid #e1e5e9;
+        border-radius: 25px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      input:focus {
+        border-color: #1e3c72;
+        box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+      }
+
+      button {
+        padding: 1rem 2rem;
+        margin-left: 1rem;
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .loading {
+        text-align: center;
+        color: white;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+      }
+
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error {
+        background: #ff6b6b;
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        text-align: center;
+      }
+
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .product-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(30, 60, 114, 0.1);
+        transition: all 0.3s ease;
+        border: 2px solid #e8f0fe;
+      }
+
+      .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(30, 60, 114, 0.2);
+        border-color: #1e3c72;
+      }
+
+      .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border: 2px solid #e8f0fe;
+      }
+
+      .product-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .stars {
+        color: #f39c12;
+        font-size: 1rem;
+      }
+
+      .rating-text {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .product-link {
+        display: inline-block;
+        background: linear-gradient(45deg, #1e3c72, #2a5298);
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .product-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .debug-info {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 2rem;
+        font-family: monospace;
+        font-size: 0.9rem;
+        color: #1e3c72;
+        border: 2px solid #e8f0fe;
+      }
+
+      .no-products {
+        text-align: center;
+        color: white;
+        font-size: 1.2rem;
+        margin: 2rem 0;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        input {
+          width: 100%;
+          margin-bottom: 1rem;
+        }
+
+        button {
+          width: 100%;
+          margin-left: 0;
+        }
+
+        .products-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🛍️ Amazon Scraper</h1>
+
+      <form id="scrape-form" class="search-form">
+        <input
+          type="text"
+          id="url"
+          placeholder="Digite uma palavra-chave para buscar produtos"
+          required
+        />
+        <button type="submit" id="submit-btn">🔍 Buscar Produtos</button>
+      </form>
+
+      <div id="loading" class="loading" style="display: none">
+        <div class="spinner"></div>
+        <p>Buscando produtos na Amazon...</p>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
+
+      <div id="no-products" class="no-products" style="display: none">
+        <p>Nenhum produto encontrado. Tente outra palavra-chave.</p>
+      </div>
+
+      <div id="products-grid" class="products-grid"></div>
+
+      <div id="debug-info" class="debug-info" style="display: none"></div>
+    </div>
+
+    <script type="module" src="./src/script.ts"></script>
+  </body>
 </html>

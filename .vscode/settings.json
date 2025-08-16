@@ -1,0 +1,8 @@
+{
+  "npm.packageManager": "auto",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true
+  }
+}

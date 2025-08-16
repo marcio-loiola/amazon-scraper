@@ -3,6 +3,12 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run backend/server.ts",
+    "start": "bun run backend/server.ts",
+    "backend": "bun run backend/server.ts",
+    "frontend": "cd frontend/amazon-scraper && npm run dev"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/cheerio": "^0.22.35",
