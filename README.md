@@ -129,3 +129,66 @@ O frontend inclui logs detalhados no console do navegador para facilitar o debug
 - ✅ Error handling in both backend and frontend
 - ✅ Clear application execution instructions
 - ✅ Clean and functional code
+
+## Learning Process / Processo de Aprendizado
+
+### 🐛 Common Issues & Solutions / Problemas Comuns e Soluções
+
+#### **TypeScript Errors / Erros de TypeScript**
+```typescript
+// ❌ Error: 'resultado' is possibly 'null'
+const resultado = document.getElementById('resultado');
+
+// ✅ Solution: Add null check
+const resultado = document.getElementById('resultado');
+if (resultado) {
+    resultado.innerHTML = data;
+}
+```
+
+#### **Module Import Issues / Problemas de Importação**
+```typescript
+// ❌ Error: Missing 'default' export in cheerio
+import cheerio from 'cheerio';
+
+// ✅ Solution: Use named import
+import * as cheerio from 'cheerio';
+```
+
+#### **API Endpoint Issues / Problemas de Endpoint**
+```bash
+# ❌ Error: Cannot GET /api/scrape
+# Cause: Backend not running or wrong URL
+
+# ✅ Solution: Check backend is running
+bun run dev  # Should show "Servidor rodando em http://localhost:3000"
+```
+
+#### **Parameter Validation / Validação de Parâmetros**
+```typescript
+// ❌ Error: {"error":"URL não informada"}
+// Cause: Empty or missing keyword parameter
+
+// ✅ Solution: Add validation
+if (!keyword || keyword.trim() === '') {
+    return res.status(400).json({ error: "Palavra-chave não informada" });
+}
+```
+
+### 🔧 Key Learnings / Aprendizados Principais
+
+1. **Multiple CSS Selectors**: Amazon's HTML structure changes frequently, so using multiple fallback selectors is crucial
+2. **Headers for Anti-Bot Protection**: Proper User-Agent and headers prevent blocking
+3. **Error Handling**: Comprehensive error handling improves user experience
+4. **TypeScript Strict Mode**: Null checks prevent runtime errors
+5. **Module Compatibility**: Different import syntax for different module systems
+6. **Development Workflow**: Hot reload saves significant development time
+
+### 🎯 Best Practices / Melhores Práticas
+
+- Always validate input parameters
+- Use multiple CSS selectors for robustness
+- Implement comprehensive error handling
+- Test with different keywords and scenarios
+- Use TypeScript strict mode for better code quality
+- Document common issues and solutions
